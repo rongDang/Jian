@@ -1,0 +1,88 @@
+{% extends 'book/base.html' %}
+{% load static %}
+{% block css %}
+    <style>
+    .container{
+    padding-top:20px;
+    }
+    .p{
+    padding-top:150px;
+    padding-left:600px;
+    }
+    .p1{
+    padding-top:10px;
+    padding-left:600px;
+    font-weight:900;
+    }
+
+     .pp{
+    padding-top:10px;
+    padding-left:550px;
+    font-size:16px
+
+    }
+
+     .p2{
+    padding-top:0px;
+    padding-left:650px;
+    font-size:5px;
+    color: darkgrey;
+
+
+
+    }
+
+      .nr{
+    padding-top:0px;
+    text-align: center;
+
+
+    }
+    .hf{
+    text-align:center;
+    color: darkgrey;
+    font-size:10px;
+    }
+    </style>
+{% endblock %}
+
+{% block content  %}
+<div class="container" xmlns="http://www.w3.org/1999/html">
+    <div class="row">
+        <div class="col-sm-4 col-md-4" >
+            <ul class="nav nav-pills nav-stacked">
+                <li class="active">
+                    <a href="#">
+                        <span class="glyphicon glyphicon-comment">&nbsp;评论</span>
+                    </a>
+                </li>
+                <li><a href="{% url 'book:attention' %}">
+                    <span class="glyphicon glyphicon-user">&nbsp;关注</span></a>
+                </li>
+            </ul>
+        </div>
+        <div id="myTabContent" class="tab-content">
+            <div class="col-sm-6 col-md-6" style="font-size:15px;font-weight: 900">收到的评论
+                <hr style="height: 1px;border: none;border-top: 1px solid #f0f0f0;">
+                {% if author %}
+                    {% for f in author %}
+                        <div class="media" style="padding-left: 50px;">
+                            <div class="media-left media-middle ">
+                                <a><img src="http://tvax4.sinaimg.cn/crop.0.0.996.996.1024/006MVlndly8fo6mdivhprj30ro0rogn7.jpg" class="media-object img-thumbnail img-circle" width="50px" height="50px"></a>
+                            </div>
+                            <div class="media-body ">
+                                <h3 style="font-size: 15px"> {{ f.author.nick_name }}评论了文章&nbsp;<a href="{% url 'book:show_article' f.article_id %}" style="color: cornflowerblue"><<{{ f.article.title }}>></a></h3>
+                                <p style="color: darkgrey;font-size: 5px;">{{ f.create_time }}</p>
+                                <h5>{{ f.content }}</h5>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="p"><img src="{% static 'img/3.png' %}" class="img-rounded"></p>
+                    <p class="p1">这里还木有内容哦~</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends 'book/base.html' %}
+{% load static %}
+{% block title %}我的主页{% endblock %}
+
+{% block css %}
+<style>
+    #contents {
+        /*对超出容器的部分强制截取，高度不确定则换行*/
+        overflow: hidden;
+        /*显示省略号来代表被修剪的文本*/
+        text-overflow: ellipsis;
+        /*!*禁止换行*!*/
+        /*white-space: nowrap;*/
+        /*将对象作为弹性伸缩盒子模型显示*/
+        display: -webkit-box;
+        /*从上到下垂直排列子元素（设置伸缩盒子的子元素排列方式）*/
+        -webkit-box-orient: vertical;
+        /*这个属性不是css的规范属性，需要组合上面两个属性，表示显示的行数*/
+        -webkit-line-clamp: 3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <div class="container">
+        <div class="row" style="padding-top: 20px">
+            <div class="col-md-7 col-xs-7">
+                <div class="media">
+                    <div class="media-left">
+                        <a href="#">
+                            <img class="media-object img-thumbnail img-circle" width="90px" height="90px"  src="http://tvax4.sinaimg.cn/crop.0.0.996.996.1024/006MVlndly8fo6mdivhprj30ro0rogn7.jpg">
+                        </a>
+                    </div>
+                    <div class="media-body" style="padding-top: 15px;">
+                        <h2 class="media-heading">{{ his.nick_name }}
+                            {% if hisAtten %}
+                                <button id="test" class="btn btn-danger" style="float: right">已关注</button>
+                            {% else %}
+                                <button id="test" class="btn btn-success" style="float: right">关注</button>
+                            {% endif %}
+                        </h2>
+                        <div>
+                            <ul class="nav navbar-nav">
+                                <li><a href="#">关注 <span>{{ his.user_from.count }}</span></a></li>
+                                <li><a href="#">粉丝 <span>{{ his.user_to.count }}</span></a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+                <div>
+                    <ul class="nav nav-tabs">
+                        <li class="active">
+                            <a href="#article" data-toggle="tab" class="glyphicon glyphicon glyphicon-list-alt" aria-hidden="true">&nbsp;文章</a>
+                        </li>
+                        <li>
+                            <a href="#hot" data-toggle="tab" class="glyphicon glyphicon glyphicon-fire" aria-hidden="true">&nbsp;热门</a>
+                        </li>
+                    </ul>
+                       <div class="tab-content">
+                           <div id="article" class="tab-pane fade in active">
+                               <ul class="list-group">
+                               {% for foo2 in pub %}
+                                    <li class="list-group-item" style="padding: 0px">
+                                           <ul class="list-group">
+                                               <li class="list-group-item"><a style="font-size: 18px" href="{% url 'book:show_article' foo2.id %}">{{ foo2.title }}</a></li>
+
+                                               <li class="list-group-item"><p id="contents">{{ foo2.content }}</p></li>
+                                               <li class="list-group-item">
+                                                   <span class="glyphicon glyphicon glyphicon-eye-open" aria-hidden="true"></span> {{ foo2.click_number }}&nbsp;
+                                                   <span class="glyphicon glyphicon glyphicon-comment" aria-hidden="true"></span> {{ foo2.comments_set.count }}&nbsp;
+                                                   <span class="glyphicon glyphicon glyphicon-heart" aria-hidden="true"></span> {{ foo2.collect_set.count }}
+                                                   <span class="pull-right"> {{ foo2.create_time }}</span>
+                                               </li>
+                                           </ul>
+                                       </li>
+                               {% endfor %}
+                               </ul>
+                           </div>
+                           <div id="hot" class="tab-pane fade">
+                                <ul class="list-group">
+                               {% for hot in pub %}
+                                    <li class="list-group-item" style="padding: 0px">
+                                           <ul class="list-group">
+                                               <li class="list-group-item"><a style="font-size: 18px" href="{% url 'book:show_article' hot.id %}">{{ hot.title }}</a></li>
+                                               <li class="list-group-item"><p id="contents">{{ hot.content }}</p></li>
+                                               <li class="list-group-item">
+                                                   <span class="glyphicon glyphicon glyphicon-eye-open" aria-hidden="true"></span> {{ hot.click_number }}&nbsp;
+                                                   <span class="glyphicon glyphicon glyphicon-comment" aria-hidden="true"></span> {{ hot.comments_set.count }}&nbsp;
+                                                   <span class="glyphicon glyphicon glyphicon-heart" aria-hidden="true"></span> {{ hot.collect_set.count }}
+                                                   <span class="pull-right"> {{ hot.create_time }}</span>
+                                               </li>
+                                           </ul>
+                                       </li>
+                               {% endfor %}
+                               </ul>
+                           </div>
+                       </div>
+
+                </div>
+            </div>
+            <div class="col-md-4 col-xs-4">
+                <div>
+                    <span>个人介绍</span>
+                </div>
+                <div>
+                    <p>{{ his.introduce }}</p>
+                </div>
+                <hr>
+                <div>
+                    <a href="{% url 'book:show_collect' %}?username={{ his.nick_name }}"><span class="glyphicon glyphicon glyphicon-heart">&nbsp;他喜欢的文章</span></a>
+                </div>
+                <hr>
+                <div>
+                    <h3>他的文集</h3>
+                        <ul style="list-style: none">
+                            {% for foo in his.anthology_set.all %}
+                                <li id="Corpus"><a href="/book/corpus/?user={{ his.nick_name }}&name={{ foo.name }}"><span class="glyphicon glyphicon glyphicon-book">&nbsp;{{ foo.name }}</span></a></li>
+                            {% endfor %}
+                        </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('#test').click(function () {
+            var name = $('#test').text();
+            if (name == "关注") {
+                $('#test').removeClass("btn-success");
+                {#$.post("{% url 'book:add_attention' %}", {author: "{{ data.author_id }}"}, function (msg) {#}
+                $('#test').addClass("btn-danger");
+                $('#test').text("已关注");
+               // })
+            } else {
+                $('#test').removeClass("btn-danger");
+                {#$.post("{% url 'book:del_attention' %}", {author: "{{ data.author_id }}"}, function (msg) {#}
+                $('#test').addClass("btn-success");
+                $('#test').text("关注");
+                //})
+            }
+        });
+    </script>
+{% endblock %}

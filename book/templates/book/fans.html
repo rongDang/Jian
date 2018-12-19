@@ -1,0 +1,161 @@
+{% extends 'book/base.html' %}
+{% load static %}
+
+{% block title %}我的主页{% endblock %}
+
+{% block css %}
+<style>
+    span{
+        color: #8d8986;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <div class="container">
+        <div class="row" style="padding-top: 20px">
+            <div class="col-md-7 col-xs-7" style="padding-top: 20px">
+                <div class="media">
+                    <div class="media-left">
+                        <a href="#">
+                            <img class="media-object img-thumbnail img-circle" width="90px" height="90px"  src="/media/{{ obj2.head }}">
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <h2 class="media-heading">{{ obj2.nick_name }}</h2>
+                        <div>
+                            <ul class="nav navbar-nav">
+                                <li><a href="#">关注<span>{{ FAtten.count }}</span></a></li>
+                                <li><a href="/book/fans/">粉丝<span>{{ ByAtten.count}}</span></a></li>
+                                <li><a href="/book/center/">文章<span>{{ obj2.article_set.count }}</span></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <ul class="nav nav-tabs">
+                        <li><a href="#article" data-toggle="tab">关注用户<span>&nbsp;{{ FAtten.count }}</span></a></li>
+                        <li class="active"><a href="#hot" data-toggle="tab" >粉丝<span>&nbsp;{{ ByAtten.count}}</span></a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <!--关注用户-->
+                        <div id="article" class="tab-pane fade"  style="margin-top:10px ">
+                            <ul class="nav navbar-nav">
+                                {% for fooF in FAtten %}
+                                    <li>
+                                        <div class="media">
+                                            <div class="media-left">
+                                                <a href="/book/Hiscenter/?username={{ fooF.ByFollowers.nick_name }}">
+                                                    <img class="media-object img-thumbnail img-circle" width="60px" height="60px" src="{{ fooF.ByFollowers.head }}">
+                                                </a>
+                                            </div>
+                                            <div class="media-body" style="padding-top: 12px">
+                                                <h4 class="media-heading">{{ fooF.ByFollowers }}
+                                                    <button class="btn btn-default pull-right" id="{{ fooF.ByFollowers.id }}" onclick="test1('{{ fooF.ByFollowers.id }}','{{ fooF.id }}')" style="float: right">已关注</button>
+                                                </h4>
+                                                <span>关注{{ fooF.ByFollowers.user_from.count }}</span>
+                                                <span>粉丝{{ fooF.ByFollowers.user_to.count }}</span>
+                                                <span>文章{{ fooF.ByFollowers.article_set.count }}</span>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <!--粉丝-->
+                        <div id="hot" class="tab-pane fade in active" style="margin-top:10px ">
+                            <ul class="nav navbar-nav">
+                                {% for fooby in fans_list %}
+                                    <li>
+                                        <div class="media">
+                                            <div class="media-left">
+                                                <a href="/book/Hiscenter/?username={{ fooby.fans.follower.nick_name }}">
+                                                    <img class="media-object img-thumbnail img-circle" width="60px" height="60px" src="{{ fooby.fans.follower.head }}">
+                                                </a>
+                                            </div>
+                                            <div class="media-body" style="padding-top: 12px">
+                                                <h4 class="media-heading">{{ fooby.fans.follower.nick_name }}
+                                                    {% if fooby.flag %}
+                                                        <button class="btn btn-default pull-right" id="{{ fooby.fans.id }}" onclick="test('{{ fooby.fans.follower.id }}','{{ fooby.fans.id }}')" style="float: right;margin-top: auto;">已关注</button>
+                                                    {% else %}
+                                                        <button class="btn btn-default pull-right" id="{{ fooby.fans.id }}" onclick="test('{{ fooby.fans.follower.id }}','{{ fooby.fans.id }}')" style="float: right;margin-top: auto;">关注</button>
+                                                    {% endif %}
+                                                </h4>
+                                                <span>关注{{ fooby.fans.follower.user_from.count }}</span>|
+                                                <span>粉丝{{ fooby.fans.follower.user_to.count }}</span>|
+                                                <span>文章{{ fooby.fans.follower.article_set.count }}</span>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-xs-4">
+                <div>
+                    <span>个人介绍</span>
+                    <a id="editor" style="float: right" href="#"><span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true">编辑</span></a>
+                </div>
+                <div>
+                    <p>{{ obj2.introduce }}</p>
+                </div>
+                <div id="dis" style="display: none">
+                    <textarea class="form-control"></textarea>
+                    <button id="save" type="button" class="btn btn-primary">保存</button>
+                    <a id="cancel" style="float: right" href="#">取消</a>
+                </div>
+                <hr>
+                <div>
+                    <a href="{% url 'book:show_collect' %}?username={{ obj2.nick_name }}"><span class="glyphicon glyphicon glyphicon-heart">&nbsp;我喜欢的文章</span></a>
+                </div>
+                <hr>
+                <div>
+                    <h3>我的文集</h3>
+                    <ul style="list-style: none">
+                        {% for foo in antho %}
+                            <li id="Corpus"><a href="/book/corpus/?user={{ obj2.nick_name }}&name={{ foo.name }}"><span class="glyphicon glyphicon glyphicon-book">&nbsp;{{ foo.name }}</span></a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'js/Mycenter.js' %}"></script>
+    <script>
+        $.ajaxSetup({
+            headers: {"X-CSRFToken": '{{ csrf_token }}'},
+        });
+        function test(id, text_id) {
+            var text = $('#'+text_id).text();
+            if(text == "关注"){
+                $.post("{% url 'book:add_attention' %}", {author:id}, function (msg) {
+                    $('#'+text_id).text("已关注");
+                })
+            }else {
+                 $.post("{% url 'book:del_attention' %}", {author:id}, function (msg) {
+                    $('#'+text_id).text("关注");
+                })
+            }
+        }
+        function test1(id, text_id) {
+            var text = $('#'+id).text();
+            if(text == "关注"){
+                $.post("{% url 'book:add_attention' %}", {author:id}, function (msg) {
+                    $('#'+id).text("已关注");
+                })
+            }else {
+                 $.post("{% url 'book:del_attention' %}", {author:id}, function (msg) {
+                    $('#'+id).text("关注");
+                })
+            }
+        }
+    </script>
+{% endblock %}

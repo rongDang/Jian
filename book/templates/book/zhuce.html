@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>注册系统</title>
+    {% load static %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/angular.min.js' %}"></script>
+
+    <script src="{% static 'js/xiangmu.js' %}"></script>
+</head>
+<body ng-app="myApp" ng-controller="myCtrl">
+    <div style="width: 25%;height: 100%;padding: 25px;margin:auto;border: 5px solid #3a3b1c;margin-top: 130px">
+        <div style="text-align: center">
+            <h2><a href="{% url 'book:login' %}">登入</a>----<a href="#">注册</a></h2>
+        </div>
+        <div>
+            <form class="form-horizontal " role="form"  method="get" name="myForm">
+                <div class="form-group">
+                    <p class="col-sm-1"></p>
+                    <p class="col-sm-1"><span class="glyphicon glyphicon-user" style="color: rgb(58,59,28); font-size: 20px;top: 7px"></span></p>
+                    <div class="col-sm-8">
+                        <input ng-model="username" name="username" type="text" class="form-control" id="firstname" placeholder="用户名" required>
+                    </div>
+                    <div class="col-sm-2" style="top: 9px">
+                        <span ng-show="myForm.username.$invalid"><span class="glyphicon glyphicon-remove" style="color: rgb(255, 1, 0);"></span></span>
+                        <span ng-show="myForm.username.$valid"><span class="glyphicon glyphicon-ok" style="color: rgb(0, 0, 255);"></span></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <p class="col-sm-1"></p>
+                    <p class="col-sm-1"><span class="glyphicon glyphicon-envelope" style="color: rgb(0, 0, 0); font-size: 20px;top: 7px"></span></p>
+                    <div class="col-sm-8">
+                        <input ng-model="Email" name="Email" type="email" class="form-control" id="firstname" placeholder="邮箱" required>
+                    </div>
+                    <div class="col-sm-2" style="top: 9px">
+                        <span ng-show="myForm.Email.$invalid"><span class="glyphicon glyphicon-remove" style="color: rgb(255, 1, 0);"></span></span>
+                        <span ng-show="myForm.Email.$valid"><span class="glyphicon glyphicon-ok" style="color: rgb(0, 0, 255);"></span></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <p class="col-sm-1"></p>
+                    <p class="col-sm-1"><span class="glyphicon glyphicon-lock" style="color: rgb(0, 0, 0); font-size: 20px;top: 7px"></span></p>
+                    <div class="col-sm-8">
+                        <input ng-model="password" onblur="tname()" name="password" type="text" class="form-control" id="passwordlastname" placeholder="密码" required>
+                    </div>
+                    <div class="col-sm-2" style="top: 9px">
+                        <span ng-show="myForm.password.$invalid"><span class="glyphicon glyphicon-remove" style="color: rgb(255, 1, 0);"></span></span>
+                        <span ng-show="myForm.password.$valid"><span class="glyphicon glyphicon-ok" style="color: rgb(0, 0, 255);"></span></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <p class="col-sm-1"></p>
+                    <p class="col-sm-1"><span class="glyphicon glyphicon-inbox" style="color: rgb(0, 0, 0); font-size: 20px;top: 7px;"></span></p>
+                    <div class="col-sm-5">
+                        <input ng-model="yianzhengma"  type="text" class="form-control" id="lastname" placeholder="请输入验证码">
+                    </div>
+                    <div class="col-sm-4">
+                        <input ng-click="dianjiyzm()" id="btn" type="button" style="width: 100%" class="btn-block form-control btn-primary obtain generate_code" value=" 获取验证码" onclick="settime(this)">
+                    </div>
+                    <p class="col-sm-1"></p>
+                </div>
+                <div class="form-group">
+                    <p class="col-sm-1"></p>
+                    <div class="col-sm-10">
+                        <input ng-click="zhuce01()" width="100%" class="btn-block btn btn-primary form-control" type="button" value="注册">
+                    </div>
+                    <p class="col-sm-1"></p>
+                </div>
+                <div class="form-group">
+                    <h5><a style="margin-left: 10%" href="{% url 'book:index' %}">返回首页</a></h5></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        //倒计时
+        var countdown=3;
+        function settime(val) {
+            if (countdown == 0) {
+                val.removeAttribute("disabled");
+                val.value="获取验证码";
+                countdown = 3;
+                return false;
+            } else {
+                val.setAttribute("disabled", true);
+                val.value="重新发送(" + countdown + ")";
+                countdown--;
+            }
+            setTimeout(function() {
+                settime(val);
+            },1000);
+        }
+
+        function tname(){
+            var name=document.getElementById("passwordlastname").value;
+            if(name.length<6)
+                alert("密码要大于6个字符")
+        }
+    </script>
+
+</body>
+</html>

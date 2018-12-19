@@ -1,0 +1,74 @@
+{% extends 'book/base.html' %}
+{% load static %}
+{% block css %}
+<style>
+    #contents {
+        /*对超出容器的部分强制截取，高度不确定则换行*/
+        overflow: hidden;
+        /*显示省略号来代表被修剪的文本*/
+        text-overflow: ellipsis;
+        /*!*禁止换行*!*/
+        /*white-space: nowrap;*/
+        /*将对象作为弹性伸缩盒子模型显示*/
+        display: -webkit-box;
+        /*从上到下垂直排列子元素（设置伸缩盒子的子元素排列方式）*/
+        -webkit-box-orient: vertical;
+        /*这个属性不是css的规范属性，需要组合上面两个属性，表示显示的行数*/
+        -webkit-line-clamp: 3;
+    }
+    .font{color: #999}
+    .title{font-size: 20px;color: black;font-weight: bold}
+    .list-group-item{border: none}
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-5 col-lg-5">
+                <img style="height: 180px;" class="tag-banner" alt="Collect note" src="{% static 'img/collect.png' %}">
+            </div>
+        </div>
+        <div class="row" style="padding-top: 30px">
+            <ul class="list-group">
+                {% for content in articles %}
+                    <li class="list-group-item" style="padding: 0px">
+                        <ul class="list-group">
+                            <li class="list-group-item title"><a href="{% url 'book:show_article' content.article.id %}" style="color: #333">{{ content.article.title }}</a>
+                            <li class="list-group-item font"><p id="contents">{{ content.article.content }}</p>
+                            <li class="list-group-item font">
+                                <span href="#" role="link" class="glyphicon glyphicon-user"  aria-hidden="true"></span> {{ content.author }}&nbsp;
+                                <span href="#" role="link" class="glyphicon glyphicon glyphicon-comment" aria-hidden="true"></span> {{ content.article.comments_set.count }}&nbsp;
+                                <span href="#" role="link" class="glyphicon glyphicon glyphicon-heart" aria-hidden="true"></span> {{ content.article.collect_set.count }}
+                            </li>
+                        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
+{#            {% for i in articles %}#}
+{#                <div class="col-xs-16 media">#}
+{#                    <div class="media-body">#}
+{#                        <a><h4 class="media-heading" style="color: black">{{ i.article.title }}</h4></a>#}
+{#                        <p id="uui" style="color: darkgrey">{{ i.article.content }}</p>#}
+{#                    </div>#}
+{#                    <div class="meta" style="color: darkgrey">#}
+{#                        <a class="nickname" href="#" style="color: darkgrey">{{ i.author.nick_name }}</a>#}
+{#                        <a href="#" style="color: darkgrey">#}
+{#                            <i class="glyphicon glyphicon-comment"> 5</i>#}
+{#                        </a>#}
+{#                        <span>#}
+{#                              <i class="glyphicon glyphicon-heart"> 55</i>#}
+{#                          </span>#}
+{#                        <a id="shocang" href="/Bookmark/?statement_id"><i class="glyphicon glyphicon-bookmark"></i> </a>#}
+{#                    </div>#}
+{#                </div>#}
+{#            {% endfor %}#}
+        </div>
+    </div>
+{% endblock %}
+
+
+
+
+
+

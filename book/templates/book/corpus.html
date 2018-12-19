@@ -1,0 +1,80 @@
+{% extends 'book/base.html' %}
+{% load static %}
+
+{% block title %}我的文集{% endblock %}
+
+{% block css %}
+<style>
+    #contents {
+        /*对超出容器的部分强制截取，高度不确定则换行*/
+        overflow: hidden;
+        /*显示省略号来代表被修剪的文本*/
+        text-overflow: ellipsis;
+        /*!*禁止换行*!*/
+        /*white-space: nowrap;*/
+        /*将对象作为弹性伸缩盒子模型显示*/
+        display: -webkit-box;
+        /*从上到下垂直排列子元素（设置伸缩盒子的子元素排列方式）*/
+        -webkit-box-orient: vertical;
+        /*这个属性不是css的规范属性，需要组合上面两个属性，表示显示的行数*/
+        -webkit-line-clamp: 3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-7 col-xs-7" style="padding-top: 15px">
+                <div class="media">
+                    <div class="media-left">
+                        <a href="#">
+                            <img class="media-object img-thumbnail img-rounded" width="80px" height="80px" src="{% static 'img/wenji.jpg' %}">
+                        </a>
+                    </div>
+                    <div class="media-body">
+                        <h2 class="media-heading">{{ names }}</h2>
+                        <div>
+                            <span>{{ times.count }}篇文章</span>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div>
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#article" data-toggle="tab" class="glyphicon glyphicon glyphicon-list-alt" aria-hidden="true">&nbsp;最新发布</a></li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div id="article" class="tab-pane fade in active">
+                            <ul class="list-group">
+                                   {% for foo in times %}
+                                       <li class="list-group-item" style="padding: 0px">
+                                           <ul class="list-group">
+                                               <li class="list-group-item"><a href="#"></a>{{ foo.title }}</li>
+                                               <li class="list-group-item"><p id="contents">{{ foo.content }}</p></li>
+                                               <li class="list-group-item">
+                                                   <span class="glyphicon glyphicon glyphicon-eye-open"
+                                                      aria-hidden="true"></span> {{ foo.click_number }}&nbsp;
+                                                   <span class="glyphicon glyphicon glyphicon-comment"
+                                                      aria-hidden="true"></span> {{ foo.comments_set.count }}&nbsp;
+                                                   <span class="glyphicon glyphicon glyphicon-heart"
+                                                      aria-hidden="true"></span> {{ foo.collect_set.count }}
+                                                   <span class="pull-right"> {{ foo.create_time | date:"Y-m-d H:m" }}</span>
+                                               </li>
+                                           </ul>
+                                       </li>
+                                   {% endfor %}
+                               </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-xs-4" style="padding-top: 15px">
+                <h4>文集作者</h4>
+                <a href="{% url 'book:hiscenter' %}?username={{ obj3.nick_name }}"><img class="img-thumbnail img-circle" width="60px" height="60px" src="/media/{{ obj3.head }}"></a>&nbsp;{{ obj3.nick_name }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends 'book/base.html' %}
+{% load widget_tweaks %}
+
+{% block css %}
+<style>
+    .title{height: 50px;font-size: 30px;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row" style="height: 100%">
+        <div class="col-md-2" style="background-color: #404040;padding: 10px 0px;">
+            <!--新建文集-->
+            <div class="col-md-12" data-toggle="collapse" data-target="#new" style="color: #f2f2f2;margin: 10px;cursor:pointer">
+                <span class="glyphicon glyphicon-plus"></span> 新建文集
+            </div>
+            <div class="col-md-12" >
+                <form class="form-horizontal collapse" id="new">
+                    <input type="text" id="wen" class="form-control" placeholder="请输入文集名..." name="name">
+                    <div style="padding-top: 10px">
+                        <input type="button" class="btn btn-success" value="提 交" id="sub_wen"/>
+                        <input type="button" class="btn btn-danger" data-toggle="collapse" data-target="#new"  value="取 消"/>
+                    </div>
+                </form>
+            </div>
+            <!--显示文集-->
+            <div class="col-md-12" style="padding-top: 20px">
+                <ul class="list-group">
+                    <li style="cursor: pointer" id="li">
+                        {% for a in anthology %}
+                            <a class="list-group-item" id="{{ a.id }}"><strong>{{ a.name }}</strong>
+                                <!--js调用模态框-->
+                                <span class="btn btn-success" onclick="update_wen({{ a.id }})" >修 改</span>
+                                <span class="btn btn-danger" onclick="del_wen({{ a.id }})">删 除</span>
+                            </a>
+                        {% endfor %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!--富文本-->
+        <div class="col-md-10">
+            <form class="form-horizontal">
+                {% csrf_token %}
+                {{ form.media }}
+                <div class="form-group" style="margin: 10px">
+                    {% render_field form.title class='form-control title' %}
+                </div>
+                <div class="form-group" style="margin: 10px">
+                    {% render_field form.content class='form-control' text="asdsdad" %}
+                </div>
+                <div class="form-group" style="margin: 10px">
+                    <input type="button" class="btn btn-success sub" value="发表文章"/>
+                    <input type="button" class="btn btn-danger sub" value="保存"/>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!--模态框-->
+    <div class="modal fade" id="Mymodal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">请输入新文集名</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group" style="margin: 10px">
+                        <input type="text" id="name" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <!--设置退出模态框属性，data-dismiss="modal"-->
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="save">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    //点击文集后将文集id赋值给anthology_id, article_id是文章id，如果不为None则表示是修改文章，
+    var anthology_id = 0;var article_id = "{{ article_id }}";
+
+    $.ajaxSetup({
+        headers: {"X-CSRFToken": '{{ csrf_token }}'},
+    });
+    $('#sub_wen').click(function () {
+        var name = $('#wen').val();
+        if(name!=""){
+            $.post("{% url 'book:create_anthology' %}", {name:name}, function (msg) {
+                if(msg!="0"){
+                    $("<a class='list-group-item' id='"+msg+"'><strong>" + name +
+                        " </strong><span class='btn btn-success' onclick='update_wen("+msg+")'>修 改</span>" +
+                        " <span class='btn btn-danger' onclick='del_wen("+msg+")'>删 除</span>" +
+                        "</a>").appendTo($('#li'));
+                }else {alert("新文集名相同！")}
+            })
+        }else {alert("文集名不能为空！")}
+    });
+    //删除文集
+    function del_wen (id){
+        var flag = confirm("删除文集会删除文集下对应的文章，确认删除吗？");
+        if(flag){
+            $("#"+id).remove();
+            $.post("{% url 'book:delete_anthology' %}", {anthology_id:id}, function (msg) {})
+        }
+    }
+    //修改文集，这里是js调用模态框
+    function update_wen(id){
+        var name = $('#'+id).children('strong').text();//获取文集名
+        $("#name").attr("value", name);//设置模态框中输入框的值为要修改的文集名
+        $("#Mymodal").modal("toggle");
+    }
+    //修改文集提交
+    $('#save').click(function () {
+        var name = $("#name").val();//获取文集名
+        $.post("{% url 'book:update_anthology' %}", {anthology_id:anthology_id, name:name}, function (msg) {
+            if(msg!="0"){
+                $("#Mymodal").modal("toggle");
+                $("#"+anthology_id).children("strong").text(msg)
+            }else {alert("存在同名文集了")}
+        })
+    });
+    //使用on方法解决appendTo添加的元素事件无效的问题
+    $(document).on("click",'.list-group-item',function(){
+        $('.list-group-item').removeClass('active');
+        $(this).addClass('active');
+        //获取选中的文集id，提交文章到选中的文集中
+        anthology_id = $(this).attr('id');
+    });
+    //发表文章和保存文章调用同一个方法,需要选择一个文集
+    $('.sub').click(function () {
+        var publish = "";
+        var title = $('.title').val();var content = $("textarea[name='content']").val();
+        if($(this).val() == "发表文章"){publish=true}else {publish=false}
+        if(title==""||content==""){
+            alert("标题或内容不能为空")
+        }else if(anthology_id==0){
+            alert("请选定一个文集")
+        }else {
+            $.post("{% url 'book:submit_article' %}", {article_id:article_id,title:title, content:content, anthology_id:anthology_id, publish:publish}, function (msg) {
+                article_id = msg;
+                //跳转到文章页面
+                location.href="/book/show/"+msg
+            })
+        }
+    })
+</script>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'book/base.html' %}
+
+{#{% block content %}#}
+{#    <div class="container" style="padding-top: 40px">#}
+{#        <div class="row col-md-6 col-md-offset-3">#}
+{#            <ul class="nav navbar-nav">#}
+{#                {% for fooby in fans %}#}
+{#                    <li>#}
+{#                        <div class="media">#}
+{#                            <div class="media-left">#}
+{#                                <a href="#">#}
+{#                                    <img class="media-object img-thumbnail img-circle" width="60px" height="60px" src="http://tvax4.sinaimg.cn/crop.0.0.996.996.1024/006MVlndly8fo6mdivhprj30ro0rogn7.jpg">#}
+{#                                </a>#}
+{#                            </div>#}
+{#                            <div class="media-body" style="padding-top: 10px">#}
+{#                                <h4 class="media-heading">{{ fooby.follower.nick_name }}</h4>#}
+{#                                <span>关注{{ fooby.follower.user_from.count }}</span>#}
+{#                                <span>粉丝{{ fooby.follower.user_to.count }}</span>#}
+{#                                <span>文章{{ fooby.follower.article_set.count }}</span>#}
+{#                                <!--判断登录用户有没有关注其他用户-->#}
+{#                                {% if by_followers %}#}
+{#                                    <!--bug:如果登录用户关注了多个用户则会显示多个按钮-->#}
+{#                                    {% for by_follower in by_followers %}#}
+{#                                        {% if by_follower.ByFollowers == fooby.follower %}#}
+{#                                            <button class="btn btn-default pull-right" id="{{ fooby.id }}" onclick="test('{{ fooby.follower.id }}','{{ fooby.id }}')">已关注</button>#}
+{#                                            <!--退出循环？进入了if判断则退出for循环，进入else后也退出循环-->#}
+{#                                        {% else %}#}
+{#                                            <button class="btn btn-default pull-right" id="{{ fooby.id }}" onclick="test('{{ fooby.follower.id }}','{{ fooby.id }}')">关注</button>#}
+{#                                        {% endif %}#}
+{#                                    {% endfor %}#}
+{#                                {% else %}#}
+{#                                    <button class="btn btn-default pull-right" id="{{ fooby.id }}" onclick="test('{{ fooby.follower.id }}','{{ fooby.id }}')">关注</button>#}
+{#                                {% endif %}#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <hr>#}
+{#                    </li>#}
+{#                {% endfor %}#}
+{#            </ul>#}
+{#        </div>#}
+{#    </div>#}
+{#{% endblock %}#}
+
+{% block content %}
+    <div class="container" style="padding-top: 40px">
+        <div class="row col-md-6 col-md-offset-3">
+            <ul class="nav navbar-nav">
+                {% for fooby in fans_list %}
+                    <li>
+                        <div class="media">
+                            <div class="media-left">
+                                <a href="#">
+                                    <img class="media-object img-thumbnail img-circle" width="60px" height="60px" src="http://tvax4.sinaimg.cn/crop.0.0.996.996.1024/006MVlndly8fo6mdivhprj30ro0rogn7.jpg">
+                                </a>
+                            </div>
+                            <div class="media-body" style="padding-top: 10px">
+                                <h4 class="media-heading">{{ fooby.fans.follower.nick_name }}</h4>
+                                <span>关注{{ fooby.fans.follower.user_from.count }}</span>
+                                <span>粉丝{{ fooby.fans.follower.user_to.count }}</span>
+                                <span>文章{{ fooby.fans.follower.article_set.count }}</span>
+                                <!--判断登录用户有没有关注其他用户-->
+                                {% if fooby.flag %}
+                                    <button class="btn btn-default pull-right" id="{{ fooby.fans.id }}" onclick="test('{{ fooby.fans.follower.id }}','{{ fooby.fans.id }}')">已关注</button>
+                                {% else %}
+                                    <button class="btn btn-default pull-right" id="{{ fooby.fans.id }}" onclick="test('{{ fooby.fans.follower.id }}','{{ fooby.fans.id }}')">关注</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <hr>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $.ajaxSetup({
+            headers: {"X-CSRFToken": '{{ csrf_token }}'},
+        });
+        function test(id, text_id) {
+            var text = $('#'+text_id).text();
+            if(text == "关注"){
+                $.post("{% url 'book:add_attention' %}", {author:id}, function (msg) {
+                    $('#'+text_id).text("已关注");
+                })
+            }else {
+                 $.post("{% url 'book:del_attention' %}", {author:id}, function (msg) {
+                    $('#'+text_id).text("关注");
+                })
+            }
+        }
+    </script>
+{% endblock %}
+
+

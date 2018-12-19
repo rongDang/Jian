@@ -1,0 +1,205 @@
+{% extends 'book/base.html' %}
+
+{% block css %}
+<style>
+    .media a{color: brown}
+    .media a:hover{color: red}
+    .parent{
+        background-color: #f5f5f5;
+        margin: 5px 0px 5px;padding: 10px 10px 10px 10px;
+        border: 1px solid #eaeaea; font-size: 14px !important;
+        color: #666;
+    }
+    img{max-width: 920px;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row" style="padding-top: 1px">
+        <h1 align="center">{{ data.title }}
+            <!--判断登录用户名和该文章的作者是否一样，如果是则显示编辑文章按钮-->
+            {% if user.nick_name == data.author.nick_name %}
+                <a href="{% url 'book:write' %}?id={{ data.id }}" class="btn btn-info">编辑文章</a>
+            {% else %}
+                <!--如果登录用户不是该文章的作者，则可以收藏和取消收藏该文章, 查找登录用户的所有收藏文章，判断是否收藏-->
+                {% if collect_flag %}
+                    <button class="btn btn-default collect">取消收藏</button>
+                {% else %}
+                    <button class="btn btn-default collect">收藏文章</button>
+                {% endif %}
+            {% endif %}
+        </h1>
+        <div class="media col-md-8 col-md-offset-4 col-xs-6 col-xs-offset-4" style="padding: 15px 15px">
+            <div class="media-left media-middle">
+                <a href="/book/Hiscenter/?username={{ data.author.nick_name }}">
+                    <img class="media-object" style="width: 60px; height: 60px;border-radius:50%" src="http://tvax4.sinaimg.cn/crop.0.0.996.996.1024/006MVlndly8fo6mdivhprj30ro0rogn7.jpg">
+                </a>
+            </div>
+            <div class="media-body" style="padding-top: 10px">
+                <h4 class="media-heading" style="margin: 0px">{{ data.author.nick_name }}
+                    <!--attention_flag-->
+                    {% if attention_flag %}
+                        <button class="btn btn-danger test" style="padding: 1px;font-size: 10px;">
+                            <span class="glyphicon glyphicon-remove icon"></span> <span class="attention">取关</span>
+                        </button>
+                    {% else %}
+                        <button class="btn btn-success test" style="padding: 1px;font-size: 10px;">
+                            <span class="glyphicon glyphicon-plus icon"></span> <span class="attention">关注</span>
+                        </button>
+                    {% endif %}
+                </h4>
+                <div style="color: #969696;padding-top:5px">
+                    <span class="glyphicon glyphicon-calendar"></span> {{ data.create_time }}&nbsp;
+                    <span class="glyphicon glyphicon-eye-open"></span> {{ data.click_number }}&nbsp;
+                    <span class="glyphicon glyphicon-comment"></span> {{ data.comments_set.count }}&nbsp;
+                    <span class="glyphicon glyphicon-heart"></span> {{ data.collect_set.count }}&nbsp;
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row col-md-10 col-md-offset-1 .main-container">
+        {{ content | safe }}
+        <a href="/book/corpus/?user={{ data.author.nick_name }}&name={{ data.anthology.name }}" style="margin: 8px"><span class="glyphicon glyphicon-book"></span> {{ data.anthology.name }}</a>
+    </div>
+
+    <div class="row col-md-8 col-md-offset-1" style="padding-top: 30px">
+        <div class="panel panel-info" id="editor">
+            <div class="panel-heading" style="font-size: 18px">
+                {% if request.session.nick_name %}
+                    <img style="width: 40px; height: 40px;border-radius:50%" src="http://tvax4.sinaimg.cn/crop.0.0.996.996.1024/006MVlndly8fo6mdivhprj30ro0rogn7.jpg"> {{ user.nick_name }}
+                    <strong id="reply" style="display: none">回复：<span id="reply_name" style="color: #ff8b2f"></span></strong>
+                {% else %}
+                    尚未登录，请 <a href="{% url 'book:login' %}" style="color: #ff954b">登录</a> 后参与评论
+                {% endif %}
+            </div>
+            <div class="panel-body" style="padding: 0px;height: 120px">
+                <form id="form_comment" style="height: 120px">
+                    {% csrf_token %}
+                    <textarea class="form-control" name="content" style="height: 120px;resize: none"></textarea>
+                    <input type="text" id="name" name="parent_id" style="display: none">
+                    <input type="text" name="article" value="{{ data.id }}" style="display: none">
+                </form>
+            </div>
+            <div class="panel-footer pull-right" style="background-color: transparent">
+                <button class="btn btn-danger" style="display: none"><span class="glyphicon glyphicon-remove"></span> 取消回复</button>
+                <button class="btn btn-success submit_comment"><span class="glyphicon glyphicon-ok"></span> 提交评论</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row col-md-8 col-md-offset-1" style="margin-bottom: 50px">
+        <!--comments对应的文章下的评论，comment对应评论文章的用户对象-->
+        {% for comment in comments %}
+            <div class="media" style="border-bottom: dashed 1px #7f8c8d; padding-top: 10px">
+                <div class="media-body">
+                    <h4 class="media-heading">
+                        <img style="width: 40px; height: 40px;border-radius:50%" src="http://tvax4.sinaimg.cn/crop.0.0.996.996.1024/006MVlndly8fo6mdivhprj30ro0rogn7.jpg"> {{ comment.author.nick_name }}
+                        <span class="pull-right" style="font-size: 12px;padding-top: 15px">{{ comment.create_time }}</span>
+                    </h4>
+                        <div style="max-height: 300px;overflow: auto;margin-left: 50px">
+                            <!--判断父级评论-->
+                            {% if comment.parent_comment %}
+                                <div class="parent">
+                                    @ <a href="#" style="color: #62c5f1">{{ comment.parent_comment.author }}</a>
+                                    <div style="max-height: 150px;overflow: auto;margin-left: 18px">{{ comment.parent_comment.content }}</div>
+                                </div>
+                            {% endif %}
+                            {{ comment.content }}
+                        </div>
+                    <a href="#editor" class="pull-right" onclick="reply('{{ request.session.nick_name }}','{{ comment.author.nick_name }}','{{ comment.id }}')">回复</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $.ajaxSetup({
+        headers: {"X-CSRFToken": '{{ csrf_token }}'},
+    });
+    $('.collect').click(function () {
+        var flag = $(this).text();
+        if('{{ request.session.nick_name }}'){
+            if (flag=="收藏文章"){
+                $.post("{% url 'book:collect_article' %}", {article_id:"{{ data.id }}"}, function (msg) {
+                    $('.collect').text("取消收藏");
+                })
+            }else {
+                var con = confirm("确定取消收藏吗？");
+                if(con){
+                    $.post("{% url 'book:delete_collect' %}", {article_id:"{{ data.id }}"}, function (msg) {
+                        $('.collect').text("收藏文章");
+                    })
+                }
+            }
+        }else {alert("请登录")}
+    });
+    $('.test').click(function(){
+        var name = $('.attention').text();
+        if('{{ request.session.nick_name }}'){
+            if(name=="关注"){
+                $('.test').removeClass("btn-success");
+                $('.icon').removeClass("glyphicon-plus");
+                $.post("{% url 'book:add_attention' %}", {author:"{{ data.author_id }}"}, function (msg) {
+                    $('.test').addClass("btn-danger");
+                    $('.icon').addClass("glyphicon-remove");
+                    $('.attention').text("取关");
+                })
+            }else {
+                $('.test').removeClass("btn-danger");
+                $('.icon').removeClass("glyphicon-remove");
+                $.post("{% url 'book:del_attention' %}", {author:"{{ data.author_id }}"}, function (msg) {
+                    $('.test').addClass("btn-success");
+                    $('.icon').addClass("glyphicon-plus");
+                    $('.attention').text("关注");
+                })
+            }
+        }else {alert("请登录")}
+    });
+
+    //name为登录的用户，user是被评论对象,name_id为被评论的id
+    function reply(name,user,name_id) {
+        if (name==""){
+            alert('需要登录才能回复哦！')
+        }else {
+            $('#name').attr("value",name_id);//这里设置form中的被回复者的用户名
+            $('.btn-danger').show();
+            $('#reply').show();
+            $('#reply_name').text(user)
+        }
+    }
+    $('.btn-danger').click(function () {
+        $('#name').attr("value","");
+        $('.btn-danger').hide();
+        $('#reply').hide();
+    });
+    //提交评论
+    $('.submit_comment').click(function () {
+        var content = $("textarea").val();
+        if('{{ request.session.nick_name }}'==""){
+            alert("请登录后再评论！")
+        }else if(content==""){
+            alert("评论不能为空")
+        }else {
+            //通过serialize()将表单数据传到后台，中间有包括被回复者，
+            // 如果被回复者存在于数据库中则添加评论的父级评论为被回复者的那条数据，id对应
+            $.ajax({
+                type: "POST",
+                url: "{% url 'book:comment_submit' %}",
+                data: $('#form_comment').serialize(),
+                dataType: "json",
+                success: function(msg) {
+                    //提交成功后重新加载当前页面,可以再写一个Ajax，后台邮件提示我有新的评论
+                    window.location.reload();
+                },
+                error: function () {
+                    alert("评论出错");
+                }
+            });
+        }
+    })
+</script>
+{% endblock %}

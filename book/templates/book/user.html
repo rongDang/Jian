@@ -1,0 +1,253 @@
+{% extends 'book/base.html' %}
+
+{% load static %}
+
+{% block css %}
+    <style>
+    ul.nav-tabs{
+        width: 270px;
+        margin-top: 20px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.067);
+    }
+    ul.nav-tabs li{
+        margin: 0;
+        border-top: 1px solid #ddd;
+    }
+    ul.nav-tabs li:first-child{
+        border-top: none;
+    }
+    ul.nav-tabs li a{
+        margin: 0;
+        padding: 8px 16px;
+        border-radius: 0;
+    }
+    ul.nav-tabs li.active a, ul.nav-tabs li.active a:hover{
+        color: #fff;
+        background: #b0aaaa;
+        border: 1px solid #b0aaaa;
+    }
+    ul.nav-tabs li:first-child a{
+        border-radius: 4px 4px 0 0;
+    }
+    ul.nav-tabs li:last-child a{
+        border-radius: 0 0 4px 4px;
+    }
+    ul.nav-tabs.affix{
+        top: 30px;
+    }
+    td{
+       padding:15px 0;
+    }
+    .top-acc{
+       font-size:15px;
+       color:#969696
+    }
+    textarea{
+       width:100%;
+       height:100px;
+       margin-bottom:10px;
+       padding:8px 10px;
+       font-size:15px;
+       border:1px solid #c8c8c8;
+       border-radius:4px;
+       background-color:hsla(0, 0%, 71%, 0.1);
+       display:block;
+       resize:none;
+       outline-style:none;
+    }
+    #nicheng{
+       padding:5px 10px;
+       margin-bottom:10px;
+       font-size:15px;
+
+       border-radius:4px;
+
+       display:block;
+       resize:none;
+       outline-style:none;
+    }
+    .certification .title{
+        font-size:15px;
+        font-weight:700;
+        display:inline-block;
+        vertical-align:middle;
+    }
+    .certification ul{
+        margin:15px 0;
+        list-style:none;
+        padding-left:0px;
+    }
+    .certification ul li{
+        font-size:15px;
+        line-height:30px;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container col-md-offset-3">
+         <div class="row">
+             <div class="col-xs-3" id="myScrollspy">
+                 <ul class="nav nav-tabs nav-stacked" id="myNav">
+                     <li class="active"><a href="#section-1"data-toggle="tab">
+                         <button class="btn btn-gray btn-lg"style="font-size: 15px;color: white;background:#b0aaaa ">
+                             <i class="glyphicon glyphicon-th-list"></i>
+                         </button>
+                         <span style="color:#3f3d3d">个人资料</span>
+                     </a></li>
+                     <li><a href="#section-2"data-toggle="tab">
+                         <button class="btn btn-gray btn-lg"style="font-size: 15px;color: white;background:#b0aaaa ">
+                             <i class="glyphicon glyphicon-eye-open"></i>
+                         </button>
+                         <span style="color:#3f3d3d">微博认证</span>
+                     </a></li>
+                     <li><a href="#section-3"data-toggle="tab">
+                         <button class="btn btn-gray btn-lg"style="font-size: 15px;color: white;background:#b0aaaa ">
+                             <i class="glyphicon glyphicon-ban-circle"></i>
+                         </button>
+                         <span style="color:#3f3d3d">黑名单</span>
+                     </a></li>
+                 </ul>
+             </div>
+             <div class="col-xs-9 tab-content"id="myScrollspy">
+                 <div class="tab-pane fade in active" id="section-1">
+                      <table id="gerenziliao"style="border-collapse:collapse;border-spacing: 0;">
+                         <tbody style="border-bottom:1px solid #f0f0f0">
+                             <tr>
+                                  <td class="top-line">
+                                      <figure class="active">
+                                          <img style="width: 80px;height: 80px;" class="img-circle" src="/media/{{ Usersa.head }}" id="img" alt="头像"/>
+                                      </figure>
+                                  </td>
+                                  <td class="top-line">
+                                      <a class="btn btn-hollow" id="gengaitox">
+                                          <form id="form"  method="POST" enctype="multipart/form-data">
+                                                {% csrf_token %}
+                                                 <button class="btn btn-success fileinput-button" style="border-radius: 70px;background-color:#4CAF50;" type="button">更改头像</button>
+                                                 <input type="file" id="test" name="img" style="position:absolute;top:0;left:0;font-size:50px; opacity:0;">
+                                          </form>
+                                      </a>
+                                  </td>
+                             </tr>
+                             <tr class="top-acc">
+                                 <td>昵称</td>
+                                 <td ><input id="nicheng" type="text"value="{{ Usersa.nick_name }}"></td>
+                             </tr>
+                             <tr class="top-acc">
+                                 <td>电子邮件</td>
+                                 <td><div>{{ Usersa.email }}</div></td>
+                             </tr>
+                             <tr class="top-acc">
+                                 <td>个人简介</td>
+                                 <td>
+                                     <form>
+                                         <textarea rows="3">{{ Usersa.introduce }}</textarea>
+                                     </form>
+                                 </td>
+                             </tr>
+                         </tbody>
+                      </table>
+                      <input class="btn btn-success setting-save" id="comment" style="border-radius: 20px;background-color:#4CAF50;width: 100px;margin:30px 0 60px;border:none;" type="submit"value="保存">
+                 </div>
+                 <div id="section-2" class="tab-pane fade">
+                    <img src="{% static 'img/boke.png' %}">
+                    <div class="certification">
+                        <div class="title">简书新浪微博联合认证</div>
+                        <span style="font-size:15px;color:#969696;margin:0 20px 0 6px;vertical-align:middle;">简书推荐作者</span>
+                        <ul>
+                            <li>
+                                <i class="glyphicon glyphicon-minus"></i>
+                                简书帐号注册超过 30 天
+                            </li>
+                            <li>
+                                <i class="glyphicon glyphicon-minus"></i>
+                                简书帐号绑定新浪微博帐号
+                            </li>
+                            <li>
+                                <i class="glyphicon glyphicon-minus"></i>
+                                绑定手机号码
+                            </li>
+                            <li>
+                                <i class="glyphicon glyphicon-minus"></i>
+                                在简书发表文章字数达到 20000 字
+                            </li>
+                            <li>
+                                <i class="glyphicon glyphicon-minus"></i>
+                                在简书收获喜欢数达到 2000 个
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="certification">
+                        <div class="title">简书新浪微博联合认证</div>
+                        <span style="font-size:15px;color:#969696;margin:0 20px 0 6px;vertical-align:middle;">简书专题运营者</span>
+                        <ul>
+                            <li>
+                                <i class="glyphicon glyphicon-minus"></i>
+                                简书帐号注册超过 30 天
+                            </li>
+                            <li>
+                                <i class="glyphicon glyphicon-minus"></i>
+                                 简书帐号绑定新浪微博帐号
+                            </li>
+                            <li>
+                                <i class="glyphicon glyphicon-minus"></i>
+                                绑定手机号码
+                            </li>
+                            <li>
+                                <i class="glyphicon glyphicon-minus"></i>
+                                在简书参与编辑的专题收获订阅总数达到 1000 个
+                            </li>
+                        </ul>
+                    </div>
+                 </div>
+                 <div id="section-3"class="tab-pane fade">
+                         <div style="font-size:12px;color:#969696;padding-left:0px;font-size:15px;margin:25px 0;padding-left:0px;">
+                             你可以在用户主页将用户加入你的黑名单。在你黑名单中的用户无法在你文章下评论，无法在其它评论中提到你，无法给你发送简信，自动从你的粉丝列表移除且无法再关注你。
+                         </div>
+                 </div>
+             </div>
+         </div>
+    </div>
+    <script>
+        {#上传头像#}
+        $.ajaxSetup({
+            headers: {"X-CSRFToken": '{{ csrf_token }}'},
+        });
+        $('#form').on('change', function () {
+            var formData=new FormData();
+            formData.append('img', $('#test')[0].files[0]);
+            $.ajax({
+                url: "{% url 'book:upload_img' %}",
+                type: "post",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(data){
+                    if(data=="error"){
+                        alert("图片不正确")
+                    }else {$('#img').attr("src", "/media/"+data)}
+                }
+            })
+        });
+        {#修改昵称和个人简介#}
+        $(document).ready(function () {
+               $('#comment').click(function () {
+                    var content = $('textarea').val();
+                    var id = $('#nicheng').val();
+                   $.post('/book/xiugai/',{nick_name:id,introduce:content},function (msg) {
+                       if (msg=='ok') {
+                           location.reload(true)
+                       }else {
+                           alert('昵称重复')
+                       }
+                   })
+               })
+        })
+    </script>
+{% endblock %}
+
+
+
+

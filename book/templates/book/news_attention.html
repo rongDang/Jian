@@ -1,0 +1,105 @@
+{% extends 'book/base.html' %}
+
+{% load static %}
+{% block css %}
+    <style>
+    .container{
+    padding-top:20px;
+    }
+    .p{
+    padding-top:150px;
+    padding-left:600px;
+    }
+    .p1{
+    padding-top:10px;
+    padding-left:600px;
+    font-weight:900;
+    }
+    .header{
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 58px;
+        width:100%;
+        border-bottom:1px solid #f0f0f0;
+    }
+    .message_box{
+        display:none;
+    }
+    .header_message:hover .message_box{
+        cursor:pointer;
+        display:block;
+    }
+    .header_message:hover{
+        display:block;
+
+    }
+    .test_buttont{
+        width: 100px; padding: 8px 0;float: right;font-size: 15px;border: 1px solid hsla(0,0%,59%,.6);background: none;color: #8c8c8c;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container" xmlns="http://www.w3.org/1999/html">
+        <div class="row">
+            <div class="col-xs-4 col-md-4">
+                <ul class="nav nav-pills nav-stacked">
+                    <li><a href="{% url 'book:information' %}"><span class="glyphicon glyphicon-comment">&nbsp;评论</span></a></li>
+                    <li class="active"><a href="#"><span class="glyphicon glyphicon-user">&nbsp;关注</span></a></li>
+                </ul>
+                <hr class="hidden-sm hidden-md hidden-lg">
+            </div>
+
+            <div class="col-xs-6 col-md-6" style="font-size:15px;font-weight: 900;">全部的关注
+                <br>
+                <hr style="height: 1px;border: none;border-top: 1px solid #f0f0f0;">
+                {% if fans_list %}
+                    {% for fooby in fans_list %}
+                        <div class="media">
+                            <div class="media-left media-middle">
+                                <a href="/book/Hiscenter/?username={{ fooby.fans.follower.nick_name }}">
+                                    <img src="http://tvax4.sinaimg.cn/crop.0.0.996.996.1024/006MVlndly8fo6mdivhprj30ro0rogn7.jpg" class="media-object img-thumbnail img-circle" width="50px" height="50px">
+                                </a>
+                            </div>
+                            <div class="media-body ">
+                                <h3 style="font-size: 15px;margin-top: 10px">{{ fooby.fans.follower.nick_name }} 关注了你
+                                    {% if fooby.flag %}
+                                        <button class="btn pull-right test_buttont" id="{{ fooby.fans.id }}" onclick="test('{{ fooby.fans.follower.id }}','{{ fooby.fans.id }}')">已关注</button>
+                                    {% else %}
+                                        <button class="btn pull-right test_buttont" id="{{ fooby.fans.id }}" onclick="test('{{ fooby.fans.follower.id }}','{{ fooby.fans.id }}')">关注</button>
+                                    {% endif %}
+                                </h3>
+                                <p style="color: darkgrey;font-size: 5px;">{{ fooby.fans.Attention_time }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="p"><img src="{% static 'img/3.png' %}" class="img-rounded"></p>
+                    <p class="p1">这里还木有内容哦~</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        $.ajaxSetup({
+            headers: {"X-CSRFToken": '{{ csrf_token }}'},
+        });
+        function test(id, text_id) {
+            var text = $('#'+text_id).text();
+            if(text == "关注"){
+                $.post("{% url 'book:add_attention' %}", {author:id}, function (msg) {
+                    $('#'+text_id).text("已关注");
+                })
+            }else {
+                 $.post("{% url 'book:del_attention' %}", {author:id}, function (msg) {
+                    $('#'+text_id).text("关注");
+                })
+            }
+        }
+    </script>
+{% endblock %}
